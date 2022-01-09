@@ -7,14 +7,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = "__all__"
+        fields = ['title', 'description']
 
 
 class ProductPositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockProduct
-        fields = "__all__"
+        fields = ['product', 'quantity', 'price']
 
 
 class StockSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class StockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stock
-        fields = "__all__"
+        fields = ['positions']
 
     def create(self, validated_data):
         positions = validated_data.pop('positions')
@@ -31,15 +31,19 @@ class StockSerializer(serializers.ModelSerializer):
 
         for position in positions:
             StockProduct.objects.create(stock=stock.id,
-                                        defaults={**position})
+                                        product=position['product'],
+                                        quantity=position['quantity'],
+                                        price=position['price'],
+                                        )
         return stock
 
     def update(self, instance, validated_data):
 
         positions = validated_data.pop('positions')
         stock = super().update(instance, validated_data)
+        inst_positions = instance.positions
 
-        for position in instance.positions.all():
+        for position in inst_positions:
             StockProduct.objects.update_or_create(stock=stock.id,
                                                   defaults={**position})
 
