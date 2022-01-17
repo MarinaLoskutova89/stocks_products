@@ -23,7 +23,7 @@ class StockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stock
-        fields = ['positions']
+        fields = ['address', 'positions']
 
     def create(self, validated_data):
         positions = validated_data.pop('positions')
